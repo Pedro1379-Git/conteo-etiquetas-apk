@@ -1,23 +1,31 @@
-# Conteo de etiquetas Honda – APK
+# Conteo de etiquetas Honda (APK con cámara en vivo)
 
-Envuelve `www/index.html` (la app completa, funciona sin internet) en un APK de Android con Capacitor.
-GitHub compila el APK por ti; no necesitas instalar nada en tu computadora.
+App web de un solo archivo (`index.html`, funciona sin internet) empaquetada como APK de Android con Capacitor.
+GitHub compila el APK; no necesitas instalar nada en tu computadora.
 
-## Pasos
-1. En GitHub: **New repository** (puede ser privado), por ejemplo `conteo-etiquetas`.
-2. Sube **el contenido** de esta carpeta (que en la raíz queden `package.json`, `capacitor.config.json`, `www/`, `scripts/` y `.github/`).
-   Con la web de GitHub: **Add file → Upload files**. Arrastra todo, incluida la carpeta oculta `.github`
-   (si tu navegador no sube carpetas ocultas, crea el archivo `.github/workflows/android.yml` con **Add file → Create new file** y pega su contenido).
-3. Abre la pestaña **Actions → Compilar APK → Run workflow**. (También corre solo cada vez que subes cambios a `main`.)
-4. Cuando termine (unos 5–10 minutos, check verde), entra a esa ejecución y descarga **conteo-etiquetas-apk** (un .zip con `app-debug.apk`).
-5. Pasa el APK al celular, ábrelo y permite **instalar apps de origen desconocido** cuando lo pida.
-6. Al abrir la app y tocar «Abrir cámara en vivo», Android pide el permiso de cámara; acepta.
+## Archivos (todos en la raíz del repositorio)
+- `index.html` – la app completa (Módulo 4B).
+- `package.json`, `capacitor.config.json` – configuración de Capacitor (appId `com.yorozu.conteoetiquetas`).
+- `.github/workflows/android.yml` – flujo que compila el APK.
+- `.gitignore`, `README.md`.
+
+## Subir como una rama nueva (desde la web de GitHub)
+1. Descomprime el zip. Sube **los archivos**, no la carpeta contenedora.
+2. En tu repositorio: **Add file → Upload files** y arrastra `index.html`, `package.json`, `capacitor.config.json`, `.gitignore` y `README.md`.
+3. Abajo, en «Commit changes», elige **Create a new branch for this commit**, ponle nombre (por ejemplo `modulo-4b`) y toca **Propose changes**.
+4. El archivo del flujo va aparte (la carpeta oculta `.github` a veces no se sube arrastrando):
+   **Add file → Create new file**, escribe en el nombre `.github/workflows/android.yml` (al teclear `/` crea las carpetas),
+   pega el contenido de `android.yml`, elige la misma rama nueva y confirma.
+5. Para compilar: pestaña **Actions → Compilar APK → Run workflow**, escogiendo tu rama nueva en «Use workflow from».
+   (El flujo también corre solo al subir cambios a `main` o `master`; en otras ramas se corre a mano.)
+6. Al terminar (5–10 min), descarga **conteo-etiquetas-apk** y dentro está `app-debug.apk`.
+7. Instálalo en el celular permitiendo «instalar apps de origen desconocido». Al tocar «Abrir cámara en vivo», acepta el permiso.
 
 ## Actualizar la app
-Reemplaza `www/index.html` por la versión nueva, súbelo y vuelve a correr **Compilar APK**. Instala el APK nuevo encima del anterior (conserva el mismo nombre de paquete: `com.yorozu.conteoetiquetas`).
-Si Android rechaza la actualización por firma distinta, desinstala la anterior primero (se pierden los conteos guardados).
+Reemplaza `index.html` (en la rama) y vuelve a correr **Compilar APK**.
+Si Android rechaza instalar encima por firma distinta, desinstala la anterior primero (se pierden los conteos guardados).
 
 ## Notas
-- El APK es de depuración (firmado con clave de prueba): sirve para uso interno, no para Google Play.
-- Si la compilación falla, abre el paso en rojo en **Actions** y copia el error.
-- Para agregar números de parte nuevos hay que editar la lista `CATALOG` dentro de `www/index.html` y recompilar.
+- APK de depuración (firmado con clave de prueba): uso interno, no Google Play.
+- Para agregar números de parte, edita la lista `CATALOG` dentro de `index.html` y recompila.
+- Si algo falla, abre el paso en rojo en **Actions** y copia el error.
