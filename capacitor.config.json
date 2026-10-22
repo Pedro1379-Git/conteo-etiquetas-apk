@@ -1,0 +1,6 @@
+{
+  "appId": "com.yorozu.conteoetiquetas",
+  "appName": "Conteo Etiquetas",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}
