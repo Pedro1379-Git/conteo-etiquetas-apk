@@ -11,6 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Ubicar el proyecto
+        run: |
+          CFG=$(find . -name capacitor.config.json -not -path '*/node_modules/*' | head -1)
+          if [ -z "$CFG" ]; then
+            echo "::error::No encontré capacitor.config.json. Sube todos los archivos del proyecto (package.json, capacitor.config.json y la carpeta www)."
+            echo "Archivos en el repositorio:"; find . -path ./.git -prune -o -type f -print | head -50
+            exit 1
+          fi
+          PROJ=$(dirname "$CFG")
+          echo "PROJ=$PROJ" >> "$GITHUB_ENV"
+          echo "Proyecto en: $PROJ"
+          ls -la "$PROJ" "$PROJ/www"
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -21,19 +34,36 @@ jobs:
           java-version: 17
 
       - name: Instalar dependencias
+        working-directory: ${{ env.PROJ }}
         run: npm install
 
       - name: Crear proyecto Android
+        working-directory: ${{ env.PROJ }}
         run: npx cap add android
 
       - name: Permisos de cámara
-        run: python3 scripts/patch_manifest.py
+        working-directory: ${{ env.PROJ }}
+        run: |
+          python3 - <<'PY'
+          p = "android/app/src/main/AndroidManifest.xml"
+          t = open(p, encoding="utf-8").read()
+          if "android.permission.CAMERA" not in t:
+              add = ('<uses-permission android:name="android.permission.CAMERA" />\n'
+                     '    <uses-feature android:name="android.hardware.camera" android:required="false" />\n'
+                     '    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />\n\n    ')
+              i = t.index("<application")
+              t = t[:i] + add + t[i:]
+              open(p, "w", encoding="utf-8").write(t)
+          print("Permiso de cámara listo")
+          PY
+          grep -n "CAMERA" android/app/src/main/AndroidManifest.xml
 
       - name: Copiar la app al proyecto
+        working-directory: ${{ env.PROJ }}
         run: npx cap sync android
 
       - name: Compilar APK
-        working-directory: android
+        working-directory: ${{ env.PROJ }}/android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
@@ -42,5 +72,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: conteo-etiquetas-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ env.PROJ }}/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
