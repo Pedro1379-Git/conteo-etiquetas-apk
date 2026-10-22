@@ -22,6 +22,17 @@ jobs:
           PROJ=$(dirname "$CFG")
           echo "PROJ=$PROJ" >> "$GITHUB_ENV"
           echo "Proyecto en: $PROJ"
+          mkdir -p "$PROJ/www"
+          if [ ! -f "$PROJ/www/index.html" ]; then
+            H=$(ls "$PROJ"/*.html 2>/dev/null | head -1)
+            if [ -z "$H" ]; then
+              echo "::error::Falta la app. Sube el archivo conteo_etiquetas_honda.html (o index.html) a la raíz del repositorio."
+              echo "Archivos en el repositorio:"; find . -path ./.git -prune -o -type f -print | head -50
+              exit 1
+            fi
+            echo "Usando $H como app"
+            cp "$H" "$PROJ/www/index.html"
+          fi
           ls -la "$PROJ" "$PROJ/www"
 
       - uses: actions/setup-node@v4
